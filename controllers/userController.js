@@ -79,14 +79,18 @@ const postUserExercise = async (req, res) => {
                 user.exercises.push(exercise._id)
                 await user.save()
 
+                user['description'] = exercise.description
+                user['duration'] = exercise.duration
+                user['date'] = exercise.date
+
                 res.json({
-                    _id: user._id, 
-                    username: user.username, 
+                    ...user._doc,
                     description: exercise.description,
                     duration: exercise.duration,
                     date: exercise.date
                 })
 
+                // res.json(await Exercise.findById(exercise._id).populate('username'))
                 
             } else {
                 res.status(400).json({ message: 'problem saving exercise'})

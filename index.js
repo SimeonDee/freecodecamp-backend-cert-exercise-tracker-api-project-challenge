@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 
 // connecting to MongoDb
 mongoose.connect(process.env.MONGO_URI)
+        .then((data) => console.log("Connected to MongoDb"))
 
 app.use(cors())
 app.use(express.static('public'))
