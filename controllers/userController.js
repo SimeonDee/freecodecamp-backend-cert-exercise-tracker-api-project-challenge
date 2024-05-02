@@ -79,7 +79,13 @@ const postUserExercise = async (req, res) => {
                 user.exercises.push(exercise._id)
                 await user.save()
 
-                res.status(201).json(exercise)
+                res.status(201).json({
+                    _id: user._id, 
+                    username: user.username, 
+                    description: exercise.description,
+                    duration: exercise.duration,
+                    date: exercise.date
+                })
             } else {
                 res.status(400).json({ message: 'problem saving exercise'})
             }
