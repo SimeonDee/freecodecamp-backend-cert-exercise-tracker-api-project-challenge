@@ -6,7 +6,7 @@ const postUser = async (req, res) => {
         const {username} = req.body
         const user = await User.create({ username })
         if(user){
-            res.status(201).json(user)
+            res.status(201).json( {_id: user._id, username: user.username })
         } else {
             res.status(400).json({ success: false, message: 'problem saving user'})
         }
@@ -79,12 +79,15 @@ const postUserExercise = async (req, res) => {
                 user.exercises.push(exercise._id)
                 await user.save()
 
-                res.status(201).json(await user.populate('exercises'))
+                res.status(201).json(exercise)
             } else {
-                res.status(400).json({ success: false, message: 'problem saving exercise'})
+                res.status(400).json({ message: 'problem saving exercise'})
             }
 
+        } else{
+            res.status(400).json({ message: 'invalid user id supplied'})
         }
+
     } catch(err){
         res.status(500).json({ error: err.message })
     }
@@ -122,44 +125,39 @@ const getUserExerciseLogs = async (req, res)=>{
             
         if(userLogs){
             let exercises = userLogs.exercises
-            
-            let filtered = exercises.filter((exercise, i, data) => {
-                let resultFrom = from ? new Date(exercise.date) >= new Date(new Date(from).toDateString()) : true
-                let resultTo = to ? new Date(exercise.date) <= new Date(new Date(to).toDateString()) : true
+            let filtered = exercises
+            if(to || from){
+                filtered = exercises.filter((exercise, i, data) => {
+                    let resultFrom = from ? new Date(exercise.date) >= new Date(new Date(from).toDateString()) : true
+                    let resultTo = to ? new Date(exercise.date) <= new Date(new Date(to).toDateString()) : true
 
-                console.log(resultFrom)
-                console.log(resultTo)
+                    console.log(resultFrom)
+                    console.log(resultTo)
 
-                return resultFrom && resultTo
-            })
+                    return resultFrom && resultTo
+                })
+
+            }
             
             // *********************
-            return res.json({ filtered })
+            // return res.json({ filtered })
 
             if(limit){
-                let filteredSorted = filtered.sort((ex1, ex2) => {
+                let filtered = filtered.sort((ex1, ex2) => {
                     if(new Date(ex1.date) > new Date(ex2.date)) return 1
                     else if(new Date(ex1.date) === new Date(ex2.date)) return 0
                     else return -1
                 })
 
-                console.log(filteredSorted)
-
-                filtered = filteredSorted.slice(0, limit-1)
-
-                console.log(filtered)
+                filtered = filtered.slice(0, limit-1)
             }
             
-
-            // let logs = await userLogs.find(queryFilter)
-            // console.log(logs)
-
             const { _id, username } = userLogs
             const count = filtered.length
             return res.json({ _id, username, count, log: filtered })
         }
 
-        res.status(404).json({ success: false, message: 'No user log found'})
+        res.status(404).json({ success: false, message: 'invalid user id supplied'})
 
     } catch(err){
         res.status(500).json({ error: err.message })
