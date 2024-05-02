@@ -1,5 +1,6 @@
 const User = require('../models/User')
 const Exercise = require('../models/Exercise')
+const { user_logs } = require('../utils')
 
 const postUser = async (req, res) => {
     try{
@@ -131,42 +132,46 @@ const getUserExerciseLogs = async (req, res)=>{
         // console.log(queryFilter)
 
 
-        let userLogs = await User.findById(user_id)
+        let foundUser = await User.findById(user_id)
             .populate('exercises', '-_id -username -__v')
         
             
-        if(userLogs){
-            let exercises = userLogs.exercises
-            let filtered = exercises
-            if(to || from){
-                filtered = exercises.filter((exercise, i, data) => {
-                    let resultFrom = from ? new Date(exercise.date) >= new Date(new Date(from).toDateString()) : true
-                    let resultTo = to ? new Date(exercise.date) <= new Date(new Date(to).toDateString()) : true
+        if(foundUser){
+            const userLogs = user_logs(foundUser, from, to, limit)
+            return res.json(userLogs)
 
-                    console.log(resultFrom)
-                    console.log(resultTo)
+            // let exercises = foundUser.exercises
+            // let filtered = exercises
+            // if(to || from){
+            //     filtered = exercises.filter((exercise, i, data) => {
+            //         let resultFrom = from ? new Date(exercise.date) >= new Date(new Date(from).toDateString()) : true
+            //         let resultTo = to ? new Date(exercise.date) <= new Date(new Date(to).toDateString()) : true
 
-                    return resultFrom && resultTo
-                })
+            //         console.log(resultFrom)
+            //         console.log(resultTo)
 
-            }
+            //         return resultFrom && resultTo
+            //     })
+
+            // }
             
-            // *********************
-            // return res.json({ filtered })
+            // // *********************
+            // // return res.json({ filtered })
 
-            if(limit){
-                let filtered = filtered.sort((ex1, ex2) => {
-                    if(new Date(ex1.date) > new Date(ex2.date)) return 1
-                    else if(new Date(ex1.date) === new Date(ex2.date)) return 0
-                    else return -1
-                })
+            // if(limit){
+            //     let filtered = filtered.sort((ex1, ex2) => {
+            //         if(new Date(ex1.date) > new Date(ex2.date)) return 1
+            //         else if(new Date(ex1.date) === new Date(ex2.date)) return 0
+            //         else return -1
+            //     })
 
-                filtered = filtered.slice(0, limit-1)
-            }
+            //     filtered = filtered.slice(0, limit-1)
+            // }
             
-            const { _id, username } = userLogs
-            const count = filtered.length
-            return res.json({ _id, username, count, log: filtered })
+            // const { _id, username } = foundUser
+            // const count = filtered.length
+            // return res.json({ _id, username, count, log: filtered })
+            
         }
 
         res.status(404).json({ success: false, message: 'invalid user id supplied'})
