@@ -65,6 +65,10 @@ const postUserExercise = async (req, res) => {
         const { user_id } = req.params
         let {description, duration, date } = req.body
 
+        if(!(description && duration)) { 
+            throw new Error('description and duration fields missing in requrest body')
+        }
+        
         if(!date){
             date = new Date().toDateString()
         } else if(!Date.parse(date)) {
@@ -72,6 +76,8 @@ const postUserExercise = async (req, res) => {
         } else {
             date = new Date(date).toDateString()
         }
+
+        if(isNaN(duration)){ throw new Error('duration field must be a number') }
 
         duration = Number.parseInt(duration)
         const user = await User.findById(user_id)
