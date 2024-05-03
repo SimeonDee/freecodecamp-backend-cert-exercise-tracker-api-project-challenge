@@ -67,6 +67,8 @@ const postUserExercise = async (req, res) => {
 
         if(!date){
             date = new Date().toDateString()
+        } else if(!Date.parse(date)) {
+            date = new Date().toDateString()
         } else {
             date = new Date(date).toDateString()
         }
@@ -80,12 +82,9 @@ const postUserExercise = async (req, res) => {
                 user.exercises.push(exercise._id)
                 await user.save()
 
-                user['description'] = exercise.description
-                user['duration'] = exercise.duration
-                user['date'] = exercise.date
-
                 res.json({
-                    ...user._doc,
+                    _id: user._id,
+                    username: user.username,
                     description: exercise.description,
                     duration: exercise.duration,
                     date: exercise.date
