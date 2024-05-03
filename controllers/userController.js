@@ -83,16 +83,16 @@ const postUserExercise = async (req, res) => {
         duration = Number.parseInt(duration)
         const user = await User.findById(user_id)
         if(user){
-            const exercise = await Exercise.create({ username: user.username, description, duration, date })
+            const exercise = await Exercise.create({ _id: user._id, username: user.username, description, duration, date })
             if(exercise) {
                 // adds the new exercise _id to user's exercises list and save update
                 user.exercises.push(exercise._id)
                 await user.save()
 
-                const { description, duration, date } = exercise
-                const results = process_post_user_exercise(user,description, duration, date)
-                res.json(results)
-                
+                // const { description, duration, date } = exercise
+                // const results = process_post_user_exercise(user,description, duration, date)
+                res.json(exercise)
+
                 // res.json({
                 //     _id: user._id,
                 //     username: user.username,
