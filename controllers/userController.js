@@ -68,7 +68,7 @@ const postUserExercise = async (req, res) => {
         if(!date){
             date = new Date().toDateString()
         } else if(!Date.parse(date)) {
-            date = new Date().toDateString()
+            throw new Error('invalid date supplied')
         } else {
             date = new Date(date).toDateString()
         }
