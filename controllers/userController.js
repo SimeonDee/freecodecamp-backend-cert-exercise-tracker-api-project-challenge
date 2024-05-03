@@ -48,10 +48,16 @@ const getUserExercises = async (req, res)=>{
         const {user_id} = req.params
         const user = await User.findById(user_id)
         if(user){
-            const userExercises = await Exercise.find({ username: user.username })
-                                                // .populate('user', 'username')
+            const userExercises = await Exercise.find({ user_id: user_id })
+            // .populate('user', 'username')
+
             if(userExercises) {
-                return res.json(userExercises)
+                const results = userExercises.map((ex) => {
+                    const { user_id, username, description, duration, date } = ex
+                    return { _id: user_id, username, description, duration, date }
+                })
+
+                return res.json(results)
             }
         }
         res.status(404).json({ success: false, message: 'No user found'})
@@ -83,7 +89,7 @@ const postUserExercise = async (req, res) => {
         duration = Number.parseInt(duration)
         const user = await User.findById(user_id)
         if(user){
-            const exercise = await Exercise.create({ _id: user._id, username: user.username, description, duration, date })
+            const exercise = await Exercise.create({ user_id: user._id, username: user.username, description, duration, date })
             if(exercise) {
                 // adds the new exercise _id to user's exercises list and save update
                 user.exercises.push(exercise._id)
@@ -91,7 +97,8 @@ const postUserExercise = async (req, res) => {
 
                 // const { description, duration, date } = exercise
                 // const results = process_post_user_exercise(user,description, duration, date)
-                res.json(exercise)
+                const { user_id, username, description, duration, date } = exercise
+                res.json({_id: user_id, username, description, duration, date })
 
                 // res.json({
                 //     _id: user._id,
@@ -130,7 +137,10 @@ const getUserExerciseLogs = async (req, res)=>{
             // return res.json(userLogs)
 
             
-            let filtered = foundUser.exercises
+            let filtered = foundUser.exercises.map(({description, duration, date})=>{
+                return {description, duration, date}
+            })
+
             let isValidDate = true;
             if(to){ isValidDate = Date.parse(to) }
             if(from){ isValidDate = isValidDate && Date.parse(from) }
