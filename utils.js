@@ -77,5 +77,6 @@ const process_post_user_exercise = (found_user, description, duration, date) => 
 }
 
 module.exports = {
-    user_logs
+    user_logs,
+    process_post_user_exercise,
 }

@@ -1,6 +1,7 @@
 const User = require('../models/User')
 const Exercise = require('../models/Exercise')
 // const { user_logs } = require('../utils')
+const { process_post_user_exercise } = require('../utils')
 
 const postUser = async (req, res) => {
     try{
@@ -68,7 +69,7 @@ const postUserExercise = async (req, res) => {
         if(!(description && duration)) { 
             throw new Error('description and duration fields missing in requrest body')
         }
-        
+
         if(!date){
             date = new Date().toDateString()
         } else if(!Date.parse(date)) {
@@ -88,13 +89,18 @@ const postUserExercise = async (req, res) => {
                 user.exercises.push(exercise._id)
                 await user.save()
 
-                res.json({
-                    _id: user._id,
-                    username: user.username,
-                    description: exercise.description,
-                    duration: exercise.duration,
-                    date: exercise.date
-                })
+                const { description, duration, date } = exercise
+                const results = process_post_user_exercise(user,description, duration, date)
+                res.json(results)
+                
+                // res.json({
+                //     _id: user._id,
+                //     username: user.username,
+                //     description: exercise.description,
+                //     duration: exercise.duration,
+                //     date: exercise.date
+                // })
+
 
                 // res.json(await Exercise.findById(exercise._id).populate('username'))
                 
