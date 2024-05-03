@@ -12,7 +12,7 @@ mongoose.connect(process.env.MONGO_URI)
 app.use(cors())
 app.use(express.static('public'))
 app.use(bodyParser.urlencoded({ extended: true }))
-app.use(express.json())
+// app.use(express.json())
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
