@@ -1,6 +1,6 @@
 const User = require('../models/User')
 const Exercise = require('../models/Exercise')
-const { user_logs } = require('../utils')
+// const { user_logs } = require('../utils')
 
 const postUser = async (req, res) => {
     try{
@@ -111,70 +111,53 @@ const getUserExerciseLogs = async (req, res)=>{
         const {user_id} = req.params
         const { from, to, limit } = req?.query
 
-        // const queryFilter = {}
-        // if(from && to){
-        //     queryFilter.exercises =  [{date: 
-        //             {
-        //                 $gte: new Date(from).toDateString(), 
-        //                 $lte: new Date(to).toDateString() 
-        //             }
-        //         }]
-        // } else if(from && !to){
-        //     queryFilter.exercises = [{date: {$gte: new Date(from).toDateString()}}]
-        // } else if(to && !from){
-        //     queryFilter.exercises = [{date: {$lte: new Date(to).toDateString()}}]
-        // }
-
-        // if(limit){
-        //     queryFilter.exercises["$limit"] = Number.parseInt(limit)
-        // }
-
-        // console.log(queryFilter)
-
-
         let foundUser = await User.findById(user_id)
             .populate('exercises', '-_id -username -__v')
-        
             
         if(foundUser){
-            const userLogs = user_logs(foundUser, from, to, limit)
-            return res.json(userLogs)
+            // const userLogs = user_logs(foundUser, from, to, limit)
+            // return res.json(userLogs)
 
-            // let exercises = foundUser.exercises
-            // let filtered = exercises
-            // if(to || from){
-            //     filtered = exercises.filter((exercise, i, data) => {
-            //         let resultFrom = from ? new Date(exercise.date) >= new Date(new Date(from).toDateString()) : true
-            //         let resultTo = to ? new Date(exercise.date) <= new Date(new Date(to).toDateString()) : true
-
-            //         console.log(resultFrom)
-            //         console.log(resultTo)
-
-            //         return resultFrom && resultTo
-            //     })
-
-            // }
             
-            // // *********************
-            // // return res.json({ filtered })
+            let filtered = foundUser.exercises
+            let isValidDate = true;
+            if(to){ isValidDate = Date.parse(to) }
+            if(from){ isValidDate = isValidDate && Date.parse(from) }
 
-            // if(limit){
-            //     let filtered = filtered.sort((ex1, ex2) => {
-            //         if(new Date(ex1.date) > new Date(ex2.date)) return 1
-            //         else if(new Date(ex1.date) === new Date(ex2.date)) return 0
-            //         else return -1
-            //     })
+            if(!isValidDate){ 
+                res.status(404).json({ message: 'invalid date supplied'}) 
+            }
 
-            //     filtered = filtered.slice(0, limit-1)
-            // }
+            if(isValidDate && (to || from)){
+                // Select exercises within date range specified
+                filtered = filtered.filter((exercise, i, data) => {
+                    let resultFrom = from ? Date.parse(exercise.date) >= Date.parse(from) : true
+                    let resultTo = to ? Date.parse(exercise.date) <= Date.parse(to) : true
+
+                    return resultFrom && resultTo
+                })
+
+            }
+
+            if(limit){
+                // Sort in descending order of date
+                filtered = filtered.sort((ex1, ex2) => {
+                    if(Date.parse(ex1.date) < Date.parse(ex2.date)) return 1
+                    else if(Date.parse(ex1.date) === Date.parse(ex2.date)) return 0
+                    else return -1
+                })
+
+                filtered = filtered.slice(0, Number.parseInt(limit))
+            }
             
-            // const { _id, username } = foundUser
-            // const count = filtered.length
-            // return res.json({ _id, username, count, log: filtered })
+            const { _id, username } = foundUser
+            const count = filtered.length
+
+            return res.json({ _id, username, count, log: filtered })
             
         }
 
-        res.status(404).json({ success: false, message: 'invalid user id supplied'})
+        res.status(404).json({ message: 'invalid user id supplied'})
 
     } catch(err){
         res.status(500).json({ error: err.message })
