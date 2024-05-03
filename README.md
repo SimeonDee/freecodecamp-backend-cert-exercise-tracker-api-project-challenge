@@ -1,3 +1,25 @@
-# Exercise Tracker
+# Exercise Tracker Solution: Freecodecamp Backend Certification Challenge
 
-This is the boilerplate for the Exercise Tracker project. Instructions for building your project can be found at https://www.freecodecamp.org/learn/apis-and-microservices/apis-and-microservices-projects/exercise-tracker
+Exercise Tracker Full-stack App: A FreeCodeCamp 4th Project challenge Solution for My Backend Development and APIs Certification
+
+## Tools
+---
+- Nodejs
+- Express
+- body-parser
+- dotenv
+- MongoDB
+- Mongoose
+- Javascript Date object (filter query by date)
+
+## Features
+- Add new user
+- Add exercise for user
+- Fetch all users
+- Fetch all exercises belonging to a user
+- Filter user exercises by date (from, to) supplied via query parameters
+- Sorting user exercises by date (descending order) using exercises.filter.
+- Set limit to query returned (limit)
+- Relate User model with exercise model and populate data in both directios (One-to-Many relationship)
+- Fetch logs of user exercises
+- 
