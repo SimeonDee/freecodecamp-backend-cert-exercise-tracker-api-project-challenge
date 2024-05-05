@@ -1,7 +1,7 @@
 const User = require('../models/User')
 const Exercise = require('../models/Exercise')
 // const { user_logs } = require('../utils')
-const { process_post_user_exercise } = require('../utils')
+// const { process_post_user_exercise } = require('../utils')
 
 const postUser = async (req, res) => {
     try{
